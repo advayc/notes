@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, Sparkles, Shield, Pencil, Globe } from 'lucide-react';
 import { ReactNode } from 'react';
+import WorldMapDemo from '@/components/world-map-demo';
 
 export default function Home() {
   return (
@@ -78,6 +79,12 @@ export default function Home() {
             />
           </div>
         </div>
+      </section>
+      
+      {/* World Map Section */}
+      <section className="py-16 bg-black relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-white/[0.02] -z-10" />
+        <WorldMapDemo />
       </section>
       
       {/* CTA Section */}

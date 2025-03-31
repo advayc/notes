@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>
+      <body>
         <div className="min-h-screen bg-black text-emerald-500">
           <GridBackground gridColor="#22c55e" gridOpacity={0.03}>
             <Navbar />
