@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { UserIcon } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -50,6 +51,15 @@ export default function Navbar() {
                   className={pathname === '/notes' ? 'bg-emerald-500 hover:bg-emerald-600 text-black' : 'text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10'}
                 >
                   My Notes
+                </Button>
+              </Link>
+              <Link href="/protected">
+                <Button 
+                  variant={pathname === '/protected' ? 'default' : 'ghost'}
+                  className={pathname === '/protected' ? 'bg-emerald-500 hover:bg-emerald-600 text-black' : 'text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10'}
+                >
+                  <UserIcon className="mr-1 h-4 w-4" />
+                  Profile
                 </Button>
               </Link>
               <Button 
