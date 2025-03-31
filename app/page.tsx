@@ -1,22 +1,68 @@
-import Hero from "@/components/hero";
-import ConnectSupabaseSteps from "@/components/tutorial/connect-supabase-steps";
-import SignUpUserSteps from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import Notes from "@/components/Notes";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default async function Home() {
+export default function Home() {
   return (
-    <>
-      <Hero />
-      <main className="flex-1 flex flex-col gap-6 px-4">
-        <h2 className="font-medium text-xl mb-4">Next steps</h2>
-        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-        
-        <div className="mt-8">
-          <h2 className="font-medium text-xl mb-4">My Notes</h2>
-          <Notes />
+    <div className="min-h-screen bg-black">
+      {/* Hero Section */}
+      <section className="py-20 px-4 text-center relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/10 to-transparent pointer-events-none" />
+        <div className="container mx-auto max-w-3xl relative">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-emerald-500">
+            Your Personal Note-Taking App
+          </h1>
+          <p className="text-xl text-emerald-500/80 mb-8">
+            Create, organize, and access your notes from anywhere. Simple, secure, and beautiful.
+          </p>
+          <Link href="/sign-in">
+            <Button size="lg" className="text-lg bg-emerald-500 hover:bg-emerald-600 text-black font-semibold">
+              Get Started
+            </Button>
+          </Link>
         </div>
-      </main>
-    </>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-black/50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12 text-emerald-500">Features</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-emerald-500">Secure & Private</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-emerald-500/80">
+                  Your notes are encrypted and only accessible to you. Sign in with your account to access your personal space.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-emerald-500">Easy to Use</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-emerald-500/80">
+                  Create, edit, and delete notes with a simple and intuitive interface. No learning curve required.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="text-emerald-500">Access Anywhere</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-emerald-500/80">
+                  Access your notes from any device with a web browser. Your notes are always in sync.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

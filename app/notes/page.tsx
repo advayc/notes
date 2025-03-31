@@ -7,15 +7,16 @@ export default async function NotesPage() {
   const supabase = createServerComponentClient({ cookies });
   
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
-    return redirect("/sign-in");
+  if (!session) {
+    redirect('/sign-in');
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8 text-emerald-500">My Notes</h1>
       <Notes />
     </div>
   );

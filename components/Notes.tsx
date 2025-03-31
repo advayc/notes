@@ -1,197 +1,214 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 
 interface Note {
-  id: number;
+  id: string;
   title: string;
   content: string;
   created_at: string;
-  user_id: string;
 }
 
 export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState({ title: '', content: '' });
   const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const supabase = createClient();
+  const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     fetchNotes();
   }, []);
 
   async function fetchNotes() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    const { data, error } = await supabase
-      .from('notes')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) throw error;
+      setNotes(data || []);
+    } catch (error) {
       console.error('Error fetching notes:', error);
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    setNotes(data || []);
   }
 
   async function addNote(e: React.FormEvent) {
     e.preventDefault();
-    if (!newNote.title.trim() || !newNote.content.trim()) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+      const { data, error } = await supabase
+        .from('notes')
+        .insert([
+          {
+            title: newNote.title,
+            content: newNote.content,
+            user_id: session.user.id,
+          },
+        ])
+        .select()
+        .single();
 
-    const { data, error } = await supabase
-      .from('notes')
-      .insert([{ 
-        title: newNote.title,
-        content: newNote.content,
-        user_id: user.id
-      }])
-      .select();
-
-    if (error) {
+      if (error) throw error;
+      setNotes([data, ...notes]);
+      setNewNote({ title: '', content: '' });
+    } catch (error) {
       console.error('Error adding note:', error);
-      return;
     }
-
-    setNotes([data[0], ...notes]);
-    setNewNote({ title: '', content: '' });
   }
 
   async function updateNote(e: React.FormEvent) {
     e.preventDefault();
     if (!editingNote) return;
 
-    const { data, error } = await supabase
-      .from('notes')
-      .update({ 
-        title: editingNote.title,
-        content: editingNote.content
-      })
-      .eq('id', editingNote.id)
-      .select();
+    try {
+      const { error } = await supabase
+        .from('notes')
+        .update({ 
+          title: editingNote.title,
+          content: editingNote.content
+        })
+        .eq('id', editingNote.id);
 
-    if (error) {
+      if (error) throw error;
+      setNotes(notes.map(note => 
+        note.id === editingNote.id ? editingNote : note
+      ));
+      setEditingNote(null);
+    } catch (error) {
       console.error('Error updating note:', error);
-      return;
     }
-
-    setNotes(notes.map(note => 
-      note.id === editingNote.id ? data[0] : note
-    ));
-    setEditingNote(null);
   }
 
-  async function deleteNote(id: number) {
-    const { error } = await supabase
-      .from('notes')
-      .delete()
-      .eq('id', id);
+  async function deleteNote(id: string) {
+    try {
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', id);
 
-    if (error) {
+      if (error) throw error;
+      setNotes(notes.filter((note) => note.id !== id));
+    } catch (error) {
       console.error('Error deleting note:', error);
-      return;
     }
+  }
 
-    setNotes(notes.filter(note => note.id !== id));
+  if (isLoading) {
+    return <div className="text-center text-emerald-500">Loading notes...</div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <Card>
+    <div className="space-y-8">
+      <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>My Notes</CardTitle>
+          <CardTitle className="text-emerald-500">Create New Note</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={addNote} className="space-y-4 mb-8">
+          <form onSubmit={addNote} className="space-y-4">
             <Input
               type="text"
+              placeholder="Note title"
               value={newNote.title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewNote({ ...newNote, title: e.target.value })}
-              placeholder="Note title..."
-              className="w-full"
+              onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+              className="bg-black/50 border-emerald-500/20 text-emerald-500"
             />
-            <textarea
+            <Input
+              type="text"
+              placeholder="Note content"
               value={newNote.content}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewNote({ ...newNote, content: e.target.value })}
-              placeholder="Note content..."
-              className="min-h-[100px]"
+              onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
+              className="bg-black/50 border-emerald-500/20 text-emerald-500"
             />
-            <Button type="submit" className="w-full">Add Note</Button>
+            <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-black">
+              Add Note
+            </Button>
           </form>
-
-          <div className="space-y-4">
-            {notes.map((note) => (
-              <Card key={note.id}>
-                <CardContent className="pt-6">
-                  {editingNote?.id === note.id ? (
-                    <form onSubmit={updateNote} className="space-y-4">
-                      <Input
-                        type="text"
-                        value={editingNote.title}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditingNote({ ...editingNote, title: e.target.value })}
-                        className="w-full"
-                      />
-                      <textarea
-                        value={editingNote.content}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditingNote({ ...editingNote, content: e.target.value })}
-                        className="min-h-[100px]"
-                      />
-                      <div className="flex gap-2">
-                        <Button type="submit" className="flex-1">Save</Button>
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          className="flex-1"
-                          onClick={() => setEditingNote(null)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-semibold">{note.title}</h3>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setEditingNote(note)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => deleteNote(note.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                      <p className="text-muted-foreground">{note.content}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Created on {format(new Date(note.created_at), 'PPP')}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </CardContent>
       </Card>
+
+      <div className="space-y-4">
+        {notes.map((note) => (
+          <Card key={note.id} className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+            <CardContent className="pt-6">
+              {editingNote?.id === note.id ? (
+                <form onSubmit={updateNote} className="space-y-4">
+                  <Input
+                    type="text"
+                    value={editingNote.title}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditingNote({ ...editingNote, title: e.target.value })}
+                    className="bg-black/50 border-emerald-500/20 text-white placeholder:text-emerald-500/50"
+                  />
+                  <Textarea
+                    value={editingNote.content}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditingNote({ ...editingNote, content: e.target.value })}
+                    className="min-h-[100px] bg-black/50 border-emerald-500/20 text-white placeholder:text-emerald-500/50"
+                  />
+                  <div className="flex gap-2">
+                    <Button 
+                      type="submit" 
+                      className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold"
+                    >
+                      Save
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="flex-1 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10"
+                      onClick={() => setEditingNote(null)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold text-emerald-500">{note.title}</h3>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingNote(note)}
+                        className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteNote(note.id)}
+                        className="bg-red-500/20 text-red-500 hover:bg-red-500/30 border-red-500/20"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-emerald-500/80 whitespace-pre-wrap">{note.content}</p>
+                  <p className="text-sm text-emerald-500/60">
+                    Created on {format(new Date(note.created_at), 'PPP')}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 } 
