@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import GridBackground from "@/components/ui/grid-background";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 // Server action to update profile
 async function updateProfile(formData: FormData) {
@@ -36,14 +37,52 @@ async function updateProfile(formData: FormData) {
     
     if (error) {
       console.error("Error updating profile:", error);
-      // In a real app, you would handle this error properly
-      return { success: false, error: error.message };
+      // Instead of returning an object, just log the error
+      // This makes the return type compatible with form actions
+      return;
     }
     
     return redirect("/profile");
   } catch (error) {
     console.error("Error in updateProfile:", error);
-    return { success: false, error: "An unexpected error occurred" };
+    // Remove the return object to fix the type error
+    return;
+  }
+}
+
+// Server action to update password
+async function updatePassword(formData: FormData) {
+  "use server";
+  
+  try {
+    const supabase = await createClient();
+    
+    // Get user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return redirect("/sign-in");
+    }
+    
+    // Get form values
+    const password = formData.get("password") as string;
+    
+    // Update password
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+    
+    if (error) {
+      console.error("Error updating password:", error);
+      // Fix return type
+      return;
+    }
+    
+    return redirect("/profile?update=password-success");
+  } catch (error) {
+    console.error("Error in updatePassword:", error);
+    // Fix return type
+    return;
   }
 }
 
@@ -87,36 +126,84 @@ export default async function EditProfilePage() {
                 <CardTitle className="text-emerald-500 text-center">{user.email}</CardTitle>
               </CardHeader>
               <CardContent>
-                <form action={updateProfile} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="username" className="text-emerald-500">Username</Label>
-                    <Input 
-                      id="username" 
-                      name="username" 
-                      defaultValue={profile?.username || user.email?.split('@')[0] || ''} 
-                      className="bg-black/30 border-emerald-500/30 text-emerald-500 focus:border-emerald-500"
-                    />
-                    <p className="text-xs text-emerald-500/70">This is how your name will appear on your profile</p>
-                  </div>
+                <Tabs defaultValue="profile" className="w-full">
+                  <TabsList className="grid grid-cols-2 mb-6 bg-black/30">
+                    <TabsTrigger value="profile" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400">
+                      Profile Information
+                    </TabsTrigger>
+                    <TabsTrigger value="password" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400">
+                      Change Password
+                    </TabsTrigger>
+                  </TabsList>
                   
-                  <div className="pt-4 flex justify-end space-x-4">
-                    <Link href="/profile">
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10"
-                      >
-                        Cancel
-                      </Button>
-                    </Link>
-                    <Button 
-                      type="submit"
-                      className="bg-emerald-500 hover:bg-emerald-600 text-black"
-                    >
-                      Save Changes
-                    </Button>
-                  </div>
-                </form>
+                  <TabsContent value="profile" className="mt-0">
+                    <form action={updateProfile} className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="username" className="text-emerald-500">Username</Label>
+                        <Input 
+                          id="username" 
+                          name="username" 
+                          defaultValue={profile?.username || user.email?.split('@')[0] || ''} 
+                          className="bg-black/30 border-emerald-500/30 text-emerald-500 focus:border-emerald-500"
+                        />
+                        <p className="text-xs text-emerald-500/70">This is how your name will appear on your profile and notes</p>
+                      </div>
+                      
+                      <div className="pt-4 flex justify-end space-x-4">
+                        <Link href="/profile">
+                          <Button 
+                            type="button"
+                            variant="outline"
+                            className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10"
+                          >
+                            Cancel
+                          </Button>
+                        </Link>
+                        <Button 
+                          type="submit"
+                          className="bg-emerald-500 hover:bg-emerald-600 text-black"
+                        >
+                          Save Changes
+                        </Button>
+                      </div>
+                    </form>
+                  </TabsContent>
+                  
+                  <TabsContent value="password" className="mt-0">
+                    <form action={updatePassword} className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="password" className="text-emerald-500">New Password</Label>
+                        <Input 
+                          id="password" 
+                          name="password" 
+                          type="password"
+                          className="bg-black/30 border-emerald-500/30 text-emerald-500 focus:border-emerald-500"
+                          minLength={6}
+                          required
+                        />
+                        <p className="text-xs text-emerald-500/70">Password must be at least 6 characters</p>
+                      </div>
+                      
+                      <div className="pt-4 flex justify-end space-x-4">
+                        <Link href="/profile">
+                          <Button 
+                            type="button"
+                            variant="outline"
+                            className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10"
+                          >
+                            Cancel
+                          </Button>
+                        </Link>
+                        <Button 
+                          type="submit"
+                          className="bg-emerald-500 hover:bg-emerald-600 text-black"
+                        >
+                          Update Password
+                        </Button>
+                      </div>
+                    </form>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
