@@ -31,7 +31,6 @@ export const GridBackground = ({
         style={{
           backgroundSize: `${gridSize}px ${gridSize}px`,
           backgroundImage: `linear-gradient(to right, ${gridColor} 1px, transparent 1px), linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)`,
-          backgroundOpacity: gridOpacity,
           opacity: gridOpacity,
         }}
       />
