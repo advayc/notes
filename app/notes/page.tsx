@@ -1,7 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import Notes from '@/components/Notes';
+import SelectableNotes from '@/components/SelectableNotes';
 
 export default async function NotesPage() {
   const supabase = createServerComponentClient({ cookies });
@@ -40,7 +40,7 @@ export default async function NotesPage() {
           </div>
           
           <h1 className="text-3xl font-bold mb-8 text-emerald-500">My Notes</h1>
-          <Notes />
+          <SelectableNotes />
         </div>
       </div>
     </div>

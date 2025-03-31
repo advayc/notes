@@ -29,6 +29,8 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --emerald-color: #10b981;
+    --emerald-color-rgb: 16, 185, 129;
   }
 
   .dark {
@@ -66,4 +68,28 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  background: rgba(var(--emerald-color-rgb), 0.025);
+  border: 1px solid var(--emerald-color);
+  pointer-events: none;
+  display: none;
+}
+
+body.selecting::after {
+  display: block;
+}
+
+body.selecting::after {
+  left: var(--selection-left, 0);
+  top: var(--selection-top, 0);
+  width: var(--selection-width, 0);
+  height: var(--selection-height, 0);
 }
