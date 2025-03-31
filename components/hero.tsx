@@ -8,7 +8,7 @@ export default function Header() {
         <a
           href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
         >
           <SupabaseLogo />
         </a>
