@@ -62,10 +62,10 @@ export default function Navbar() {
                   My Notes
                 </Button>
               </Link>
-              <Link href="/protected">
+              <Link href="/profile">
                 <Button 
-                  variant={pathname === '/protected' ? 'default' : 'ghost'}
-                  className={pathname === '/protected' ? 'bg-emerald-500 hover:bg-emerald-600 text-black' : 'text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10'}
+                  variant={pathname === '/profile' ? 'default' : 'ghost'}
+                  className={pathname === '/profile' ? 'bg-emerald-500 hover:bg-emerald-600 text-black' : 'text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10'}
                 >
                   <UserIcon className="mr-1 h-4 w-4" />
                   Profile

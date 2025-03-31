@@ -59,7 +59,7 @@ export default function SignUp() {
             <form onSubmit={handleSignUp} className="space-y-5">
               <div className="space-y-1">
                 <div className="relative">
-                  <div className="absolute left-3 top-3 text-emerald-500/70">
+                  <div className="absolute left-3 top-[14px] text-emerald-500/70">
                     <Mail size={18} />
                   </div>
                   <Input
@@ -75,7 +75,7 @@ export default function SignUp() {
               
               <div className="space-y-1">
                 <div className="relative">
-                  <div className="absolute left-3 top-3 text-emerald-500/70">
+                  <div className="absolute left-3 top-[14px] text-emerald-500/70">
                     <Lock size={18} />
                   </div>
                   <Input

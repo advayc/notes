@@ -114,7 +114,7 @@ export default function SignIn() {
                 
                 <p className="text-center text-xs text-emerald-500/50 mt-3">
                   <Link 
-                    href="/auth-pages/forgot-password" 
+                    href="/forgot-password" 
                     className="hover:text-emerald-400 transition-colors"
                   >
                     Forgot your password?
