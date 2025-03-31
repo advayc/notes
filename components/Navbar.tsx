@@ -5,7 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { UserIcon } from 'lucide-react';
+import { UserIcon, NotebookPen } from 'lucide-react';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -36,13 +38,20 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="border-b border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+    <motion.nav 
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="border-b border-emerald-500/20 bg-black/50 backdrop-blur-sm sticky top-0 z-50"
+    >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold text-emerald-500 hover:text-emerald-400 transition-colors">
-          NoteApp
+        <Link href="/" className="text-xl font-bold text-emerald-500 hover:text-emerald-400 transition-colors flex items-center gap-2">
+          <NotebookPen className="h-6 w-6" />
+          <span>NoteApp</span>
         </Link>
         
         <div className="flex items-center gap-4">
+          
           {!isLoading && user ? (
             <>
               <Link href="/notes">
@@ -79,6 +88,6 @@ export default function Navbar() {
           )}
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 } 

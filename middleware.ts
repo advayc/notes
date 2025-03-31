@@ -15,11 +15,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/sign-in', req.url));
   }
 
-  // If already authenticated and trying to access auth pages, redirect to notes
-  if (session && ['/sign-in', '/sign-up'].includes(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/notes', req.url));
-  }
-
   return res;
 }
 

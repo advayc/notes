@@ -5,9 +5,10 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, PlusCircle, Trash2, Edit2, Clock, Save } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Note {
   id: string;
@@ -22,6 +23,7 @@ export default function Notes() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
   const supabase = createClientComponentClient();
 
   useEffect(() => {
@@ -121,6 +123,7 @@ export default function Notes() {
 
       setNotes([data, ...notes]);
       setNewNote({ title: '', content: '' });
+      setIsCreating(false);
     } catch (error: any) {
       console.error('Error adding note:', error);
       setError(error.message || 'Failed to add note');
@@ -170,8 +173,11 @@ export default function Notes() {
 
   if (isLoading) {
     return (
-      <div className="text-center text-emerald-500 py-8">
-        <div className="animate-pulse">Loading notes...</div>
+      <div className="flex justify-center items-center min-h-[300px]">
+        <div className="relative flex flex-col items-center gap-2">
+          <div className="h-16 w-16 rounded-full border-4 border-emerald-500/30 border-t-emerald-500 animate-spin"></div>
+          <p className="text-emerald-500 mt-2 animate-pulse">Loading notes...</p>
+        </div>
       </div>
     );
   }
@@ -179,120 +185,195 @@ export default function Notes() {
   return (
     <div className="space-y-8">
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-start gap-3">
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
           <div>
             <h3 className="font-medium text-red-500">Error</h3>
             <p className="text-red-500/80 text-sm">{error}</p>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors">
-        <CardHeader>
-          <CardTitle className="text-emerald-500">Create New Note</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={addNote} className="space-y-4">
-            <Input
-              type="text"
-              placeholder="Note title"
-              value={newNote.title}
-              onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
-              className="bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
-              required
-            />
-            <Textarea
-              placeholder="Note content"
-              value={newNote.content}
-              onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
-              className="min-h-[100px] bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
-              required
-            />
-            <Button 
-              type="submit" 
-              className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-semibold transition-colors"
-            >
-              Add Note
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      {!isCreating ? (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-emerald-500">My Notes</h2>
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
+            onClick={() => setIsCreating(true)}
+          >
+            <PlusCircle className="h-4 w-4" />
+            New Note
+          </Button>
+        </motion.div>
+      ) : (
+        <AnimatePresence>
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-emerald-500 flex items-center gap-2">
+                  <PlusCircle className="h-5 w-5" />
+                  Create New Note
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={addNote} className="space-y-4">
+                  <Input
+                    type="text"
+                    placeholder="Note title"
+                    value={newNote.title}
+                    onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+                    className="bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
+                    required
+                  />
+                  <Textarea
+                    placeholder="Note content"
+                    value={newNote.content}
+                    onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
+                    className="min-h-[100px] bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
+                    required
+                  />
+                  <div className="flex gap-2">
+                    <Button 
+                      type="submit" 
+                      className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      Save Note
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => setIsCreating(false)}
+                      className="flex-1 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </AnimatePresence>
+      )}
 
       {notes.length === 0 ? (
-        <div className="text-center text-emerald-500/80 p-8 border border-dashed border-emerald-500/20 rounded-lg">
-          No notes yet. Create your first note above!
-        </div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative overflow-hidden rounded-lg border border-dashed border-emerald-500/20 p-8 text-center">
+          <div className="absolute inset-0 bg-grid-emerald/5" />
+          <div className="relative">
+            <PlusCircle className="h-12 w-12 text-emerald-500/40 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-emerald-500 mb-1">No notes yet</h3>
+            <p className="text-emerald-500/70 mb-4">Create your first note to get started</p>
+            {!isCreating && (
+              <Button 
+                onClick={() => setIsCreating(true)} 
+                className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold"
+              >
+                Create Your First Note
+              </Button>
+            )}
+          </div>
+        </motion.div>
       ) : (
-        <div className="space-y-4">
-          {notes.map((note) => (
-            <Card key={note.id} className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors">
-              <CardContent className="pt-6">
-                {editingNote?.id === note.id ? (
-                  <form onSubmit={updateNote} className="space-y-4">
-                    <Input
-                      type="text"
-                      value={editingNote.title}
-                      onChange={(e) => setEditingNote({ ...editingNote, title: e.target.value })}
-                      className="bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
-                      required
-                    />
-                    <Textarea
-                      value={editingNote.content}
-                      onChange={(e) => setEditingNote({ ...editingNote, content: e.target.value })}
-                      className="min-h-[100px] bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
-                      required
-                    />
-                    <div className="flex gap-2">
-                      <Button 
-                        type="submit" 
-                        className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold transition-colors"
-                      >
-                        Save
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        className="flex-1 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
-                        onClick={() => setEditingNote(null)}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </form>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xl font-semibold text-emerald-500">{note.title}</h3>
+        <motion.div layout className="grid gap-4 md:grid-cols-2">
+          <AnimatePresence>
+            {notes.map((note) => (
+              <motion.div
+                key={note.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors h-full flex flex-col">
+                  <CardContent className="pt-6 flex-grow">
+                    {editingNote?.id === note.id ? (
+                      <form onSubmit={updateNote} className="space-y-4">
+                        <Input
+                          type="text"
+                          value={editingNote.title}
+                          onChange={(e) => setEditingNote({ ...editingNote, title: e.target.value })}
+                          className="bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
+                          required
+                        />
+                        <Textarea
+                          value={editingNote.content}
+                          onChange={(e) => setEditingNote({ ...editingNote, content: e.target.value })}
+                          className="min-h-[100px] bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
+                          required
+                        />
+                        <div className="flex gap-2">
+                          <Button 
+                            type="submit" 
+                            className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold transition-colors"
+                          >
+                            Save
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="flex-1 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                            onClick={() => setEditingNote(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="space-y-3">
+                        <h3 className="text-xl font-semibold text-emerald-500">{note.title}</h3>
+                        <p className="text-emerald-500/80 whitespace-pre-wrap">{note.content}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                  
+                  {!editingNote?.id && (
+                    <CardFooter className="flex justify-between border-t border-emerald-500/10 pt-4">
+                      <div className="flex items-center text-emerald-500/60 text-xs">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {format(new Date(note.created_at), 'PPP')}
+                      </div>
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setEditingNote(note)}
-                          className="border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
+                          className="h-8 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors"
                         >
+                          <Edit2 className="h-3.5 w-3.5 mr-1" />
                           Edit
                         </Button>
                         <Button
-                          variant="destructive"
+                          variant="outline"
                           size="sm"
                           onClick={() => deleteNote(note.id)}
-                          className="bg-red-500/20 text-red-500 hover:bg-red-500/30 border-red-500/20 transition-colors"
+                          className="h-8 border-red-500/20 text-red-500 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                         >
+                          <Trash2 className="h-3.5 w-3.5 mr-1" />
                           Delete
                         </Button>
                       </div>
-                    </div>
-                    <p className="text-emerald-500/80 whitespace-pre-wrap">{note.content}</p>
-                    <p className="text-sm text-emerald-500/60">
-                      Created on {format(new Date(note.created_at), 'PPP')}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                    </CardFooter>
+                  )}
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       )}
     </div>
   );

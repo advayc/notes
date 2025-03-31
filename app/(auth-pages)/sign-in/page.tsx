@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
@@ -37,54 +38,97 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center text-emerald-500">Sign In</CardTitle>
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-emerald-400">Notes App</h1>
+          <p className="text-emerald-500/70 mt-2">Welcome back! Sign in to access your notes.</p>
+        </div>
+        
+        <Card className="border-emerald-500/20 bg-black/60 backdrop-blur-md shadow-lg shadow-emerald-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-2xl font-bold text-center text-emerald-400">Sign In</CardTitle>
+            <CardDescription className="text-center text-emerald-500/70">
+              Enter your credentials to continue
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSignIn} className="space-y-4">
-              <div className="space-y-2">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
-                  required
-                />
+          <CardContent className="pt-6">
+            <form onSubmit={handleSignIn} className="space-y-5">
+              <div className="space-y-1">
+                <div className="relative">
+                  <div className="absolute left-3 top-[14px] text-emerald-500/70">
+                    <Mail size={18} />
+                  </div>
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 bg-black/40 border-emerald-500/30 focus:border-emerald-400 text-emerald-400 placeholder:text-emerald-500/50 h-12 rounded-md"
+                    required
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-black/50 border-emerald-500/20 text-emerald-500 placeholder:text-emerald-500/50"
-                  required
-                />
+              
+              <div className="space-y-1">
+                <div className="relative">
+                  <div className="absolute left-3 top-[14px] text-emerald-500/70">
+                    <Lock size={18} />
+                  </div>
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 bg-black/40 border-emerald-500/30 focus:border-emerald-400 text-emerald-400 placeholder:text-emerald-500/50 h-12 rounded-md"
+                    required
+                  />
+                </div>
               </div>
+              
               {error && (
-                <p className="text-red-500 text-sm">{error}</p>
+                <div className="bg-red-500/10 border border-red-500/20 rounded-md px-4 py-3">
+                  <p className="text-red-400 text-sm">{error}</p>
+                </div>
               )}
+              
               <Button
                 type="submit"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-semibold transition-colors"
+                className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold transition-all duration-200 rounded-md flex items-center justify-center gap-2"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
+                {!isLoading && <ArrowRight size={18} />}
               </Button>
-              <p className="text-center text-sm text-emerald-500/80">
-                Don't have an account?{' '}
-                <Link href="/sign-up" className="text-emerald-500 hover:text-emerald-400 transition-colors">
-                  Sign up
-                </Link>
-              </p>
+              
+              <div className="pt-2">
+                <p className="text-center text-sm text-emerald-500/70">
+                  Don't have an account?{' '}
+                  <Link 
+                    href="/sign-up" 
+                    className="text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
+                  >
+                    Sign up
+                  </Link>
+                </p>
+                
+                <p className="text-center text-xs text-emerald-500/50 mt-3">
+                  <Link 
+                    href="/forgot-password" 
+                    className="hover:text-emerald-400 transition-colors"
+                  >
+                    Forgot your password?
+                  </Link>
+                </p>
+              </div>
             </form>
           </CardContent>
         </Card>
+        
+        <p className="text-center text-xs text-emerald-500/50 mt-8">
+          &copy; {new Date().getFullYear()} Notes App. All rights reserved.
+        </p>
       </div>
     </div>
   );
-} 
+}

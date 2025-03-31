@@ -1,6 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { UserIcon, ShieldCheckIcon, CalendarIcon, AtSignIcon, LogOutIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -26,72 +28,75 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="flex-1 w-full flex flex-col gap-8 bg-black text-white min-h-screen">
-      {/* Header Bar */}
-      <div className="w-full bg-gradient-to-r from-black to-black border-b border-green-500">
-        <div className="max-w-5xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-green-400">Your Profile</h1>
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Profile Summary Card */}
-        <div className="md:col-span-1">
-          <div className="bg-neutral-900 rounded-lg shadow-lg p-6 border border-green-500">
-            <div className="mb-6 flex justify-center">
-              <div className="w-32 h-32 rounded-full bg-gray-800 flex items-center justify-center border-2 border-green-400">
-                <UserIcon size={64} className="text-green-400" />
-              </div>
+    <div className="min-h-screen bg-black">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-emerald-500">Your Profile</h1>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Profile Summary Card */}
+            <div className="md:col-span-1">
+              <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors overflow-hidden">
+                <div className="p-6">
+                  <div className="mb-6 flex justify-center">
+                    <div className="w-32 h-32 rounded-full bg-black/60 flex items-center justify-center border-2 border-emerald-500">
+                      <UserIcon size={64} className="text-emerald-500" />
+                    </div>
+                  </div>
+                  <h2 className="text-xl font-semibold text-center text-emerald-500 mb-2">
+                    {user.email?.split('@')[0] || 'User'}
+                  </h2>
+                  <p className="text-emerald-500/70 text-center mb-4">{user.email}</p>
+                  <div className="mt-6 flex justify-center">
+                    <form action={signOut}>
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
+                      >
+                        <LogOutIcon size={16} className="text-emerald-400" />
+                        Sign Out
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+              </Card>
             </div>
-            <h2 className="text-xl font-semibold text-center text-green-400 mb-2">
-              {user.email?.split('@')[0] || 'User'}
-            </h2>
-            <p className="text-gray-400 text-center mb-4">{user.email}</p>
-            <div className="mt-6 flex justify-center">
-              <form action={signOut}>
-                <button className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-md border border-green-500 transition-colors">
-                  <LogOutIcon size={16} className="text-green-400" />
-                  Sign Out
-                </button>
-              </form>
+
+            {/* Main Content */}
+            <div className="md:col-span-2">
+              {/* Account Details Card */}
+              <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors overflow-hidden mb-6">
+                <CardHeader className="border-b border-emerald-500/20">
+                  <CardTitle className="text-emerald-500">Account Details</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <ShieldCheckIcon size={20} className="text-emerald-500" />
+                      <div>
+                        <p className="text-emerald-500/70 text-sm">User ID</p>
+                        <p className="text-emerald-500 font-mono text-sm break-all">{user.id}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <AtSignIcon size={20} className="text-emerald-500" />
+                      <div>
+                        <p className="text-emerald-500/70 text-sm">Email</p>
+                        <p className="text-emerald-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CalendarIcon size={20} className="text-emerald-500" />
+                      <div>
+                        <p className="text-emerald-500/70 text-sm">Member Since</p>
+                        <p className="text-emerald-500">{createdAt.toLocaleDateString()} ({daysSinceCreation} days)</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="md:col-span-2">
-          {/* Account Details Card */}
-          <div className="bg-neutral-900 rounded-lg shadow-lg mb-6 border border-green-500">
-            <div className="border-b border-gray-800 px-6 py-4">
-              <h3 className="text-lg font-semibold text-green-400">Account Details</h3>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <ShieldCheckIcon size={20} className="text-green-400" />
-                  <div>
-                    <p className="text-gray-400 text-sm">User ID</p>
-                    <p className="text-white font-mono">{user.id}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <AtSignIcon size={20} className="text-green-400" />
-                  <div>
-                    <p className="text-gray-400 text-sm">Email</p>
-                    <p className="text-white">{user.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CalendarIcon size={20} className="text-green-400" />
-                  <div>
-                    <p className="text-gray-400 text-sm">Member Since</p>
-                    <p className="text-white">{createdAt.toLocaleDateString()} ({daysSinceCreation} days)</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
