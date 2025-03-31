@@ -38,7 +38,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-emerald-400">Notes App</h1>
@@ -105,7 +105,7 @@ export default function SignIn() {
                 <p className="text-center text-sm text-emerald-500/70">
                   Don't have an account?{' '}
                   <Link 
-                    href="/sign-up" 
+                    href="/auth-pages/sign-up" 
                     className="text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
                   >
                     Sign up
@@ -114,7 +114,7 @@ export default function SignIn() {
                 
                 <p className="text-center text-xs text-emerald-500/50 mt-3">
                   <Link 
-                    href="/forgot-password" 
+                    href="/auth-pages/forgot-password" 
                     className="hover:text-emerald-400 transition-colors"
                   >
                     Forgot your password?

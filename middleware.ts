@@ -10,9 +10,14 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // If trying to access notes page without auth, redirect to sign-in
-  if (!session && req.nextUrl.pathname === '/notes') {
-    return NextResponse.redirect(new URL('/sign-in', req.url));
+  // If trying to access protected pages without auth, redirect to sign-in
+  if (!session && (req.nextUrl.pathname === '/notes' || req.nextUrl.pathname === '/protected')) {
+    return NextResponse.redirect(new URL('/auth-pages/sign-in', req.url));
+  }
+
+  // If trying to access auth pages while logged in, redirect to protected page
+  if (session && req.nextUrl.pathname.startsWith('/auth-pages')) {
+    return NextResponse.redirect(new URL('/protected', req.url));
   }
 
   return res;
