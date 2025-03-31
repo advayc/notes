@@ -13,45 +13,101 @@ CREATE TABLE IF NOT EXISTS notes (
 -- Enable Row Level Security to ensure data privacy
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
--- Create policies to control access to the notes table
--- Only allow users to see, create, update, or delete their own notes
-CREATE POLICY "Users can create their own notes" ON notes
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+-- Create policies to control access to the notes table if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'notes' AND policyname = 'Users can create their own notes'
+  ) THEN
+    CREATE POLICY "Users can create their own notes" ON notes
+      FOR INSERT WITH CHECK (auth.uid() = user_id);
+  END IF;
   
-CREATE POLICY "Users can view their own notes" ON notes
-  FOR SELECT USING (auth.uid() = user_id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'notes' AND policyname = 'Users can view their own notes'
+  ) THEN
+    CREATE POLICY "Users can view their own notes" ON notes
+      FOR SELECT USING (auth.uid() = user_id);
+  END IF;
   
-CREATE POLICY "Users can update their own notes" ON notes
-  FOR UPDATE USING (auth.uid() = user_id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'notes' AND policyname = 'Users can update their own notes'
+  ) THEN
+    CREATE POLICY "Users can update their own notes" ON notes
+      FOR UPDATE USING (auth.uid() = user_id);
+  END IF;
   
-CREATE POLICY "Users can delete their own notes" ON notes
-  FOR DELETE USING (auth.uid() = user_id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'notes' AND policyname = 'Users can delete their own notes'
+  ) THEN
+    CREATE POLICY "Users can delete their own notes" ON notes
+      FOR DELETE USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- Create a profiles table if it doesn't exist
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
   username TEXT,
   avatar_url TEXT,
+  total_notes INTEGER DEFAULT 0,
+  current_streak INTEGER DEFAULT 0,
+  longest_streak INTEGER DEFAULT 0,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Enable Row Level Security for the profiles table
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- Create policies for the profiles table
-CREATE POLICY "Users can view their own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
+-- Create policies for the profiles table if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can view their own profile'
+  ) THEN
+    CREATE POLICY "Users can view their own profile" ON profiles
+      FOR SELECT USING (auth.uid() = id);
+  END IF;
 
-CREATE POLICY "Users can update their own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can update their own profile'
+  ) THEN
+    CREATE POLICY "Users can update their own profile" ON profiles
+      FOR UPDATE USING (auth.uid() = id);
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can insert their own profile'
+  ) THEN
+    CREATE POLICY "Users can insert their own profile" ON profiles
+      FOR INSERT WITH CHECK (auth.uid() = id);
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'System can insert any profile'
+  ) THEN
+    CREATE POLICY "System can insert any profile" ON profiles
+      FOR INSERT TO anon, authenticated, service_role
+      WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Create a trigger to automatically create a profile for new users
 CREATE OR REPLACE FUNCTION create_profile_for_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, username)
-  VALUES (NEW.id, SPLIT_PART(NEW.email, '@', 1));
+  -- Check if profile already exists
+  IF NOT EXISTS (SELECT 1 FROM profiles WHERE id = NEW.id) THEN
+    -- Insert new profile with defaults
+    INSERT INTO profiles (id, username, total_notes, current_streak, longest_streak)
+    VALUES (NEW.id, SPLIT_PART(NEW.email, '@', 1), 0, 0, 0);
+  END IF;
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Log error and continue
+    RAISE NOTICE 'Error creating profile for user %: %', NEW.id, SQLERRM;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

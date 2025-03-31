@@ -31,10 +31,18 @@ export default function SignUp() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Sign up error:", error);
+        throw error;
+      }
+      
+      // Wait a moment to allow the database trigger to run
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       router.push('/notes');
     } catch (error: any) {
-      setError(error.message);
+      console.error("Error details:", error);
+      setError(error.message || "An error occurred during sign up");
     } finally {
       setIsLoading(false);
     }
