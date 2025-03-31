@@ -106,7 +106,7 @@ export default async function ProfilePage() {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
-                  <CardHeader className="pb-2">
+                  <CardHeader>
                     <CardDescription className="text-emerald-500/70">
                       Notes Count
                     </CardDescription>
@@ -117,7 +117,7 @@ export default async function ProfilePage() {
                 </Card>
 
                 <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
-                  <CardHeader className="pb-2">
+                  <CardHeader>
                     <CardDescription className="text-emerald-500/70">
                       Current Streak
                     </CardDescription>
@@ -128,7 +128,7 @@ export default async function ProfilePage() {
                 </Card>
 
                 <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
-                  <CardHeader className="pb-2">
+                  <CardHeader>
                     <CardDescription className="text-emerald-500/70">
                       Longest Streak
                     </CardDescription>
