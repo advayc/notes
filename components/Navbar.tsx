@@ -1,20 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const supabase = createClientComponentClient();
 
   useEffect(() => {
     const getUser = async () => {
+      setIsLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+      setIsLoading(false);
     };
     getUser();
 
@@ -27,6 +31,7 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    router.push('/');
   };
 
   return (
@@ -37,7 +42,7 @@ export default function Navbar() {
         </Link>
         
         <div className="flex items-center gap-4">
-          {user ? (
+          {!isLoading && user ? (
             <>
               <Link href="/notes">
                 <Button 
@@ -56,7 +61,7 @@ export default function Navbar() {
               </Button>
             </>
           ) : (
-            <Link href="/auth-pages/sign-in">
+            <Link href="/sign-in">
               <Button className="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold">
                 Sign In
               </Button>

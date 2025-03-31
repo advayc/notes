@@ -16,7 +16,7 @@ export default function Home() {
             Create, organize, and access your notes from anywhere. Simple, secure, and beautiful.
           </p>
           <Link href="/sign-in">
-            <Button size="lg" className="text-lg bg-emerald-500 hover:bg-emerald-600 text-black font-semibold">
+            <Button size="lg" className="text-lg bg-emerald-500 hover:bg-emerald-600 text-black font-semibold transition-colors">
               Get Started
             </Button>
           </Link>
@@ -28,7 +28,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-emerald-500">Features</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors">
               <CardHeader>
                 <CardTitle className="text-emerald-500">Secure & Private</CardTitle>
               </CardHeader>
@@ -39,7 +39,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors">
               <CardHeader>
                 <CardTitle className="text-emerald-500">Easy to Use</CardTitle>
               </CardHeader>
@@ -50,7 +50,7 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm">
+            <Card className="border-emerald-500/20 bg-black/50 backdrop-blur-sm hover:border-emerald-500/40 transition-colors">
               <CardHeader>
                 <CardTitle className="text-emerald-500">Access Anywhere</CardTitle>
               </CardHeader>
