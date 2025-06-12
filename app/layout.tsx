@@ -1,10 +1,9 @@
 import './globals.css';
+import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import GridBackground from '@/components/ui/grid-background';
-import { SelectionBoxProvider } from '@/components/SelectionContext';
-import SelectionBox from '@/components/SelectionBox';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,8 +22,7 @@ export const metadata: Metadata = {
       { url: 'images/logo.png', sizes: '16x16' }
     ],
     apple: { url: '/logo.png' },
-  },
-  themeColor: '#10b981',
+  }
 };
 
 // Viewport metadata
@@ -42,15 +40,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={inter.className}>
-        <SelectionBoxProvider>
           <div className="min-h-screen bg-black text-emerald-500">
             <GridBackground gridColor="#22c55e" gridOpacity={0.03}>
               <Navbar />
               <main>{children}</main>
             </GridBackground>
-            <SelectionBox />
           </div>
-        </SelectionBoxProvider>
       </body>
     </html>
   );
